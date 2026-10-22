@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>TP3</title>
+    <script src="vue.global.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <h1>Gestion des tâches</h1>
+      <p>Nombre total de tâches : {{ totalTaches }}</p>
+
+      <button :class="{ actif: filtre == 'toutes' }" @click="filtre = 'toutes'">
+        Toutes
+      </button>
+      <button :class="{ actif: filtre == 'afaire' }" @click="filtre = 'afaire'">
+        À faire
+      </button>
+      <button
+        :class="{ actif: filtre == 'terminees' }"
+        @click="filtre = 'terminees'"
+      >
+        Terminées
+      </button>
+
+      <div v-for="t in tachesFiltrees">
+        <h3>{{ t.title }}</h3>
+        <p>{{ t.description }}</p>
+        <p>Terminée : {{ t.completed }}</p>
+        <button v-show="!t.completed" @click="terminer(t)">
+          Marquer comme terminée
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const app = Vue.createApp({
+        data() {
+          return {
+            tasks: [],
+            filtre: "toutes",
+          };
+        },
+        computed: {
+          totalTaches() {
+            return this.tasks.length;
+          },
+          tachesFiltrees() {
+            if (this.filtre == "afaire") {
+              return this.tasks.filter((t) => t.completed == false);
+            }
+            if (this.filtre == "terminees") {
+              return this.tasks.filter((t) => t.completed == true);
+            }
+            return this.tasks;
+          },
+        },
+        methods: {
+          terminer(tache) {
+            tache.completed = true;
+          },
+        },
+        mounted() {
+          fetch("taskList.json")
+            .then((r) => r.json())
+            .then((data) => (this.tasks = data));
+        },
+      });
+      app.mount("#app");
+    </script>
+  </body>
+</html>
